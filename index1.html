@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+ <script type="text/javascript" src="https://cdn.datatables.net/1.10.13/js/jquery.dataTables.min.js"></script>
+<script type="text/javascript" src="https://cdn.datatables.net/fixedcolumns/3.2.2/js/dataTables.fixedColumns.min.js"></script>
+<link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/v/dt/jq-2.2.4/dt-1.10.13/fc-3.2.2/fh-3.1.2/r-2.1.0/sc-1.4.2/datatables.min.css" />
+
+</head>
+<style>
+    table{
+        border-collapse: collapse;
+    }
+    th,td{
+        border: 1px solid black;
+        padding: 5px;
+    }
+ 
+</style>
+<body onload="getData()">
+ 
+<table id="tab" class="table table-striped stripe row-border order-column" cellspacing="3" width="100%">
+        <thead>
+            <tr>
+                <th>First name</th>
+                <th>Last name</th>
+                <th>Age</th>
+                <th>Gender</th>
+                <th>E-mail</th>
+             </tr>
+        </thead>
+        <tbody id="tbody">
+             
+        </tbody>
+    </table>
+    <script type="text/javascript">
+        $(document).ready(function() {
+            var table = $('#tab').DataTable( {
+                scrollY:        "400px",
+                scrollX:        true,
+                scrollCollapse: true,
+                paging:         true,
+                fixedColumns:   {
+                    leftColumns: 1,
+                }
+            } );
+        });
+
+        async function getData(){
+
+            const records = await fetch('https://dummyjson.com/users')
+            const data =await records.json();
+            console.log(data)
+
+            let tab = ''
+            data.users.forEach(function(user){
+                tab += `<tr>
+                    <td>${user.firstName}</td>
+                    <td>${user.lastName}</td>
+                    <td>${user.age}</td>
+                    <td>${user.gender}</td>
+                    <td>${user.email}</td>
+ 
+                    </tr>`
+            });
+
+            document.getElementById('tbody').innerHTML = tab
+ 
+         
+        }
+    </script>
+    
