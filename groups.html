@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <script type="text/javascript" src="https://cdn.datatables.net/1.10.13/js/jquery.dataTables.min.js"></script>
+    <script type="text/javascript" src="https://cdn.datatables.net/fixedcolumns/3.2.2/js/dataTables.fixedColumns.min.js"></script>
+    <link rel="stylesheet" type="text/css"
+        href="https://cdn.datatables.net/v/dt/jq-2.2.4/dt-1.10.13/fc-3.2.2/fh-3.1.2/r-2.1.0/sc-1.4.2/datatables.min.css" />
+    <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
+</head>
+<style>
+    table {
+        border-collapse: collapse;
+    }
+
+    th,
+    td {
+        border: 1px solid black;
+        padding: 5px;
+        text-align: center;
+    }
+    a{
+        text-decoration: none;
+        display: flex;
+        flex-direction: column;
+        padding: 15px;
+    }
+
+    a:visited{
+        text-decoration: none;
+    }
+
+    .action-icons {
+        display: flex;
+        justify-content: space-around;
+    }
+</style>
+
+<body onload="getData()">
+
+    <table id="tab" cellspacing="3" width="50%" style="transform: translateX(50%);">
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Group Name</th>
+                <th>Group Admin ID</th>
+                <th>Users</th>
+                <th>Action</th>
+            </tr>
+        </thead>
+        <tbody id="tbody"></tbody>
+    </table>
+    <br>
+    <table id="perm" cellspacing="3" width="80%" style="transform: translateX(10%); justify-content: center;">
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Group</th>
+                <th>Users</th>
+                <th>Permissions</th>
+                <th>Action</th>
+                
+            </tr>
+        </thead>
+        <tbody id="body"></tbody>
+    </table>
+
+    <script type="text/javascript">
+        $(document).ready(function () {
+            var table = $('#tab').DataTable({
+                scrollY: "400px",
+                scrollX: true,
+                scrollCollapse: true,
+                paging: true,
+                fixedColumns: {
+                    leftColumns: 1,
+                }
+            });
+        });
+
+        async function getData() {
+
+            // Retrieve the Bearer token from localStorage
+            const bearerToken = localStorage.getItem('edms_token');
+
+            // Check if the token is present in localStorage
+            if (!bearerToken) {
+                console.error('Unauthorized');
+                return;
+            }
+
+            // Fetch groups
+            const records = await fetch('http://127.0.0.1:8000/api/groups', {
+                headers: {
+                    'Authorization': `Bearer ${bearerToken}`,
+                    'Content-Type': 'application/json'
+                }
+            });
+            const results = await fetch('http://127.0.0.1:8000/api/grouppermissions', {
+                headers: {
+                    'Authorization': `Bearer ${bearerToken}`,
+                    'Content-Type': 'application/json'
+                }
+            });
+            const data = await records.json();
+            const data2 = await results.json();
+            console.log(data);
+            console.log(data2);
+
+            const tableBody = document.getElementById('tbody');
+
+            data.data.data.forEach(group => {
+                const row = document.createElement('tr');
+
+                // Group information
+                row.innerHTML += `<td>${group.id}</td>`;
+                row.innerHTML += `<td>${group.group_name}</td>`;
+                row.innerHTML += `<td>${group.group_admin_id}</td>`;
+
+                // Users (assuming there's a users array)
+                const users = group.users.map(user => user.username).join(', ');
+                row.innerHTML += `<td>${users}</td>`;
+
+                  row.innerHTML += `<td>
+                    <a href="#"><i class="material-icons">edit</i></a>
+                    <a href="#"><i class="material-icons">delete</i></a>
+                </td>`;
+
+                tableBody.appendChild(row);
+            });
+
+            const body = document.getElementById('body');
+
+            data2.data.data.forEach(async permission => {
+                const row = document.createElement('tr');
+
+                row.innerHTML += `<td>${permission.id}</td>`;
+
+                // Access group information within permission object
+                row.innerHTML += `<td>${permission.group.group_name}</td>`;
+
+                // Users 
+                const users = permission.group.users.map(user => user.username).join(', ');
+                row.innerHTML += `<td>${users}</td>`;
+
+                // Permissions
+                row.innerHTML += `<td>${getPermissionsString(permission)}</td>`;
+
+                //  row.innerHTML += `<td>${permission.created_at}</td>`;
+                // row.innerHTML += `<td>${permission.updated_at}</td>`;
+                row.innerHTML += `<td>
+                    <a href="#"><i class="material-icons">edit</i></a>
+                    <a href="#"><i class="material-icons">delete</i></a>
+                </td>`;
+
+
+                body.appendChild(row);
+            });
+        }
+
+        function getPermissionsString(permission) {
+            const permissions = [
+                'view_users', 'add_user', 'assign_user_group', 'view_user', 'update_user', 'delete_user',
+                'view_groups', 'add_group', 'view_group', 'update_group', 'delete_group',
+                'view_group_memberships', 'add_group_membership', 'view_group_membership',
+                'update_group_membership', 'delete_group_membership',
+                'view_group_permissions', 'add_group_permission', 'view_group_permission',
+                'update_group_permission', 'delete_group_permission',
+                'view_folders', 'create_folder', 'open_folder', 'update_folder', 'delete_folder',
+                'view_documents', 'add_document', 'view_document', 'update_document', 'delete_document',
+                'view_fields', 'add_field', 'view_field', 'update_field', 'delete_field',
+                'view_docfields', 'create_docfield', 'view_docfield', 'update_docfield', 'delete_docfield',
+                'view_worksteps', 'add_workstep', 'view_workstep', 'update_workstep', 'delete_workstep',
+                'view_possible_actions', 'add_possible_action', 'view_possible_action',
+                'update_possible_action', 'delete_possible_action',
+                'view_workstep_results', 'add_workstep_result', 'view_workstep_result',
+                'rewind_workstep_result', 'delete_workstep_result'
+            ];
+ 
+     const allowedPermissions = permissions
+        .filter(permissionName => permission[permissionName] === 1)
+       
+        return allowedPermissions.join(', ');
+
+}
+    </script>
+
+</body>
+ 
+
+</html>

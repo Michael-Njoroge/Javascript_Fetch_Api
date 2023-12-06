@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+    <script type="text/javascript" src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script type="text/javascript" src="https://cdn.datatables.net/1.10.13/js/jquery.dataTables.min.js"></script>
     <script type="text/javascript" src="https://cdn.datatables.net/fixedcolumns/3.2.2/js/dataTables.fixedColumns.min.js"></script>
     <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/v/dt/jq-2.2.4/dt-1.10.13/fc-3.2.2/fh-3.1.2/r-2.1.0/sc-1.4.2/datatables.min.css" />
@@ -43,12 +44,14 @@
         var table = $('#tab').DataTable({
             scrollY: "400px",
             scrollX: true,
-            scrollCollapse: true,
+            scrollCollapse: false,
             paging: true,
             fixedColumns: {
                 leftColumns: 1,
             }
         });
+
+        getData();
     });
 
     async function getData() {
@@ -65,8 +68,8 @@
                 <td>${user.gender}</td>
                 <td>${user.email}</td>
                 <td class="action-icons">
-                    <a href="#" onclick="editUser('${user.id}')"><i class="material-icons">edit</i></a>
-                    <a href="#" onclick="deleteUser('${user.id}')"><i class="material-icons">delete</i></a>
+                    <a href="#"><i class="material-icons">edit</i></a>
+                    <a href="#"><i class="material-icons">delete</i></a>
                 </td>
             </tr>`;
         });
@@ -74,15 +77,6 @@
         document.getElementById('tbody').innerHTML = tab;
     }
 
-    function editUser(userId) {
-        // Implement your edit logic here, you can open a modal or redirect to an edit page
-        console.log(`Edit user with ID: ${userId}`);
-    }
-
-    function deleteUser(userId) {
-        // Implement your delete logic here, you can confirm the deletion and send a delete request
-        console.log(`Delete user with ID: ${userId}`);
-    }
 </script>
 
 </body>
